@@ -1,0 +1,154 @@
+/******************************************************************************
+1- Escreva um programa que implemente as funções básicas para manipulação de uma lista duplamente
+encadeada
+*******************************************************************************/
+#include <stdio.h>
+#include <stdlib.h>
+
+typedef struct No {
+    int dado;
+    struct No* proximo;
+    struct No* anterior;
+} No;
+
+typedef struct ListaDuplamenteEncadeada {
+    No* cabeca;
+} ListaDuplamenteEncadeada;
+
+ListaDuplamenteEncadeada* criar_lista() {
+    ListaDuplamenteEncadeada* lista = (ListaDuplamenteEncadeada*)malloc(sizeof(ListaDuplamenteEncadeada));
+    lista->cabeca = NULL;
+    return lista;
+}
+
+No* criar_no(int dado) {
+    No* novo_no = (No*)malloc(sizeof(No));
+    novo_no->dado = dado;
+    novo_no->proximo = NULL;
+    novo_no->anterior = NULL;
+    return novo_no;
+}
+
+void inserir_no_fim(ListaDuplamenteEncadeada* lista, int dado) {
+    No* novo_no = criar_no(dado);
+    if (!lista->cabeca) {
+        lista->cabeca = novo_no;
+        return;
+    }
+    
+    No* temp = lista->cabeca;
+    while (temp->proximo)
+        temp = temp->proximo;
+    
+    temp->proximo = novo_no;
+    novo_no->anterior = temp;
+}
+
+void inserir_no_inicio(ListaDuplamenteEncadeada* lista, int dado) {
+    No* novo_no = criar_no(dado);
+    if (!lista->cabeca) {
+        lista->cabeca = novo_no;
+        return;
+    }
+    
+    novo_no->proximo = lista->cabeca;
+    lista->cabeca->anterior = novo_no;
+    lista->cabeca = novo_no;
+}
+
+void excluir_no(ListaDuplamenteEncadeada* lista, int chave) {
+    No* temp = lista->cabeca;
+    while (temp && temp->dado != chave)
+        temp = temp->proximo;
+    
+    if (!temp)
+        return;
+    
+    if (temp->anterior)
+        temp->anterior->proximo = temp->proximo;
+    else
+        lista->cabeca = temp->proximo;
+    
+    if (temp->proximo)
+        temp->proximo->anterior = temp->anterior;
+    
+    free(temp);
+}
+
+void exibir_para_frente(ListaDuplamenteEncadeada* lista) {
+    No* temp = lista->cabeca;
+    printf("Lista para frente: ");
+    while (temp) {
+        printf("%d <-> ", temp->dado);
+        temp = temp->proximo;
+    }
+    printf("NULL\n");
+}
+
+void exibir_para_tras(ListaDuplamenteEncadeada* lista) {
+    No* temp = lista->cabeca;
+    if (!temp)
+        return;
+    
+    while (temp->proximo)
+        temp = temp->proximo;
+    
+    printf("Lista para tras: ");
+    while (temp) {
+        printf("%d <-> ", temp->dado);
+        temp = temp->anterior;
+    }
+    printf("NULL\n");
+}
+
+void mostrar_menu() {
+    printf("\nMenu de Operacoes:\n");
+    printf("1. Inserir no inicio\n");
+    printf("2. Inserir no fim\n");
+    printf("3. Excluir no\n");
+    printf("4. Exibir lista para frente\n");
+    printf("5. Exibir lista para tras\n");
+    printf("6. Sair\n");
+    printf("Escolha uma opcao: ");
+}
+
+int main() {
+    ListaDuplamenteEncadeada* lista = criar_lista();
+    int escolha, dado, chave;
+
+    do {
+        mostrar_menu();
+        scanf("%d", &escolha);
+        
+        switch (escolha) {
+            case 1:
+                printf("Digite o valor a ser inserido no inicio: ");
+                scanf("%d", &dado);
+                inserir_no_inicio(lista, dado);
+                break;
+            case 2:
+                printf("Digite o valor a ser inserido no fim: ");
+                scanf("%d", &dado);
+                inserir_no_fim(lista, dado);
+                break;
+            case 3:
+                printf("Digite o valor do no a ser excluido: ");
+                scanf("%d", &chave);
+                excluir_no(lista, chave);
+                break;
+            case 4:
+                exibir_para_frente(lista);
+                break;
+            case 5:
+                exibir_para_tras(lista);
+                break;
+            case 6:
+                printf("Saindo\n");
+                break;
+            default:
+                printf("Opcao invalida! Tente novamente.\n");
+        }
+    } while (escolha != 6);
+
+    return 0;
+}
