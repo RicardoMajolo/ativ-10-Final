@@ -1,0 +1,160 @@
+/******************************************************************************
+Reescreva o programa anterior, adaptando a estrutura para que seja uma lista duplamente encadeada
+circular.
+*******************************************************************************/
+#include <stdio.h>
+#include <stdlib.h>
+
+typedef struct No {
+    int dado;
+    struct No* proximo;
+    struct No* anterior;
+} No;
+
+typedef struct ListaDuplamenteEncadeadaCircular {
+    No* cabeca;
+} ListaDuplamenteEncadeadaCircular;
+
+ListaDuplamenteEncadeadaCircular* criar_lista() {
+    ListaDuplamenteEncadeadaCircular* lista = (ListaDuplamenteEncadeadaCircular*)malloc(sizeof(ListaDuplamenteEncadeadaCircular));
+    lista->cabeca = NULL;
+    return lista;
+}
+
+No* criar_no(int dado) {
+    No* novo_no = (No*)malloc(sizeof(No));
+    novo_no->dado = dado;
+    novo_no->proximo = NULL;
+    novo_no->anterior = NULL;
+    return novo_no;
+}
+
+void inserir_no_fim(ListaDuplamenteEncadeadaCircular* lista, int dado) {
+    No* novo_no = criar_no(dado);
+    if (!lista->cabeca) {
+        lista->cabeca = novo_no;
+        novo_no->proximo = novo_no;
+        novo_no->anterior = novo_no;
+        return;
+    }
+    
+    No* ultimo = lista->cabeca->anterior;
+    ultimo->proximo = novo_no;
+    novo_no->anterior = ultimo;
+    novo_no->proximo = lista->cabeca;
+    lista->cabeca->anterior = novo_no;
+}
+
+void inserir_no_inicio(ListaDuplamenteEncadeadaCircular* lista, int dado) {
+    No* novo_no = criar_no(dado);
+    if (!lista->cabeca) {
+        lista->cabeca = novo_no;
+        novo_no->proximo = novo_no;
+        novo_no->anterior = novo_no;
+        return;
+    }
+    
+    No* ultimo = lista->cabeca->anterior;
+    novo_no->proximo = lista->cabeca;
+    novo_no->anterior = ultimo;
+    lista->cabeca->anterior = novo_no;
+    ultimo->proximo = novo_no;
+    lista->cabeca = novo_no;
+}
+
+void excluir_no(ListaDuplamenteEncadeadaCircular* lista, int chave) {
+    if (!lista->cabeca) return;
+
+    No* temp = lista->cabeca;
+    do {
+        if (temp->dado == chave) {
+            if (temp->proximo == temp) {  // Lista tem um único nó
+                lista->cabeca = NULL;
+            } else {
+                temp->anterior->proximo = temp->proximo;
+                temp->proximo->anterior = temp->anterior;
+                if (temp == lista->cabeca) {
+                    lista->cabeca = temp->proximo;
+                }
+            }
+            free(temp);
+            return;
+        }
+        temp = temp->proximo;
+    } while (temp != lista->cabeca);
+}
+
+void exibir_para_frente(ListaDuplamenteEncadeadaCircular* lista) {
+    if (!lista->cabeca) return;
+
+    No* temp = lista->cabeca;
+    printf("Lista para frente: ");
+    do {
+        printf("%d <-> ", temp->dado);
+        temp = temp->proximo;
+    } while (temp != lista->cabeca);
+    printf("...\n");
+}
+
+void exibir_para_tras(ListaDuplamenteEncadeadaCircular* lista) {
+    if (!lista->cabeca) return;
+
+    No* temp = lista->cabeca->anterior;
+    printf("Lista para tras: ");
+    do {
+        printf("%d <-> ", temp->dado);
+        temp = temp->anterior;
+    } while (temp != lista->cabeca->anterior);
+    printf("...\n");
+}
+
+void mostrar_menu() {
+    printf("\nMenu de Operacoes:\n");
+    printf("1. Inserir no inicio\n");
+    printf("2. Inserir no fim\n");
+    printf("3. Excluir no\n");
+    printf("4. Exibir lista para frente\n");
+    printf("5. Exibir lista para tras\n");
+    printf("6. Sair\n");
+    printf("Escolha uma opcao: ");
+}
+
+int main() {
+    ListaDuplamenteEncadeadaCircular* lista = criar_lista();
+    int escolha, dado, chave;
+
+    do {
+        mostrar_menu();
+        scanf("%d", &escolha);
+        
+        switch (escolha) {
+            case 1:
+                printf("Digite o valor a ser inserido no inicio: ");
+                scanf("%d", &dado);
+                inserir_no_inicio(lista, dado);
+                break;
+            case 2:
+                printf("Digite o valor a ser inserido no fim: ");
+                scanf("%d", &dado);
+                inserir_no_fim(lista, dado);
+                break;
+            case 3:
+                printf("Digite o valor do no a ser excluido: ");
+                scanf("%d", &chave);
+                excluir_no(lista, chave);
+                break;
+            case 4:
+                exibir_para_frente(lista);
+                break;
+            case 5:
+                exibir_para_tras(lista);
+                break;
+            case 6:
+                printf("Saindo\n");
+                break;
+            default:
+                printf("Opcao invalida! Tente novamente.\n");
+        }
+    } while (escolha != 6);
+
+    return 0;
